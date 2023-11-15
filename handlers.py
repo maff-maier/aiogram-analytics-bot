@@ -53,15 +53,18 @@ async def upload_video(message: Message, state: FSMContext):
     global media_group_id
     global last_update_time
 
-    print(media_group_id)
-    print(message.media_group_id)
-    print(last_update_time)
-
+    '''Тут тема в том, что сообщения трекаются не одновременно, а тогда, когда загрузились.
+        То, что происходит ниже: смотрим на последний сохраненный айди карусели. Если он не равен текущему,
+        то задаем его равным текущему. Обновляем время последнего обновления айди. Если равен, смотрим разность текущего тайма
+        и времени последней обновы. Если меньше n(300 в текущем кейсе), то скипаем соо. Если норм, то обрабатываем. 
+        Вроде как одинаковые карусели имеют разный айди. Но вообще это всё бордер кейс, потому что не подразумевается получение
+        карусели. Если получаем, смотрим на первый айтем, остальное скип. Если одно сообщение, то всё нормально, работаем
+        в штатном режиме'''
     if message.media_group_id != media_group_id:
         media_group_id = message.media_group_id
         last_update_time = time.time()
     else:
-        if time.time() - last_update_time < 120:
+        if time.time() - last_update_time < 300:
             last_update_time = time.time()
             return
         else:
@@ -73,7 +76,6 @@ async def upload_video(message: Message, state: FSMContext):
         return await message.answer('Отправьте видео (можно файлом)!')
 
     if doc:
-        print(doc)
         if doc.mime_type.startswith('video/'):
             data = await state.get_data()
             await state.clear()
@@ -88,7 +90,6 @@ async def upload_video(message: Message, state: FSMContext):
         else:
             return await message.answer('Отправьте видео (можно файлом)!')
     else:
-        print(video)
         if video.mime_type.startswith('video/'):
             data = await state.get_data()
             await state.clear()
