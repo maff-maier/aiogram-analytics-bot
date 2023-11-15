@@ -69,7 +69,6 @@ async def upload_video(message: Message, state: FSMContext):
             return
         else:
             last_update_time = time.time()
-            media_group_id = -1
 
 
     if not video and not doc:
